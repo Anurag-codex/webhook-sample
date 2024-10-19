@@ -32,6 +32,7 @@ import { CustomField } from "./CustomField"
 import { useState, useTransition } from "react"
 import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils"
 import { updateCredits } from "@/lib/actions/user.actions"
+import MediaUploader from "./MediaUploader"
 
 
 export const formSchema = z.object({
@@ -42,7 +43,7 @@ export const formSchema = z.object({
   publicId: z.string(),
 })
 
-const TransformationForm = ({ action, data = null, userId, type, creditBalance, config= null }: TransformationFormProps) => {
+const TransformationForm = ({ action, data = null, userId, type, creditBalance, config = null }: TransformationFormProps) => {
 
   const transformationType = transformationTypes[type];
   const [image, setImage] = useState(data);
@@ -74,7 +75,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
   const onSelectFieldHandler = (value: string, onChangeField: (value: string) => void) => {
     const imageSize = aspectRatioOptions[value as AspectRatioKey]
 
-    setImage((prevState: any)=> ({
+    setImage((prevState: any) => ({
       ...prevState,
       aspectRatio: imageSize.aspectRatio,
       width: imageSize.width,
@@ -85,8 +86,8 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
   }
 
   const onInputChangeHandler = (fieldName: string, value: string, type: string, onChangeField: (value: string) => void) => {
-    debounce(()=>{
-      setNewTransformation((prevState: any)=> ({
+    debounce(() => {
+      setNewTransformation((prevState: any) => ({
         ...prevState,
         [type]: {
           ...prevState?.[type],
@@ -97,12 +98,12 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
     }, 1000)
   }
 
-  const onTransformHandler = async ()=>{
+  const onTransformHandler = async () => {
     setIsTransforming(true);
     setTransformationConfig(deepMergeObjects(newTransformation, transformationConfig))
     setNewTransformation(null)
 
-    startTransition(async ()=>{
+    startTransition(async () => {
       // await updateCredits(userId, CcreditFee)
     })
   }
@@ -190,17 +191,35 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             )}
           </div>
         )}
-        <div className="flex flex-col gap-4">
-        <Button type="button"
-        className="submit-button capitalize"
-        disabled={isTransforming || newTransformation === null}
-        onClick={onTransformHandler}
-        >{isTransforming  ? 'Transforming...' : 'Apply Transformation'}</Button>
 
-        <Button type="submit"
-        className="submit-button capitalize"
-        disabled={isSubmitting}
-        >{isSubmitting ?  'Submitting...' : 'Save image'}</Button>
+        <div className="media-uploader-field">
+          <CustomField
+          control={form.control}
+          name="publicId"
+          className="flex size-full flex-col"
+          render={({field})=> (
+            <MediaUploader
+              onValueChange={field.onChange}
+              setImage={setImage}
+              publicId={field.value}
+              image={image}
+              type={type}
+            />
+          )}
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Button type="button"
+            className="submit-button capitalize"
+            disabled={isTransforming || newTransformation === null}
+            onClick={onTransformHandler}
+          >{isTransforming ? 'Transforming...' : 'Apply Transformation'}</Button>
+
+          <Button type="submit"
+            className="submit-button capitalize"
+            disabled={isSubmitting}
+          >{isSubmitting ? 'Submitting...' : 'Save image'}</Button>
 
 
         </div>
