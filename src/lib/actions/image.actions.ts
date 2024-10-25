@@ -12,7 +12,7 @@ import {v2 as Cloudinary} from 'cloudinary';
 const popuplateUser= (query: any)=> query.populate({
   path: 'author',
   model: User,
-  select: '_id, firstName lastName'
+  select: '_id, firstName lastName clerkId'
 })
 
 // Add image
@@ -129,9 +129,9 @@ export async function getAllImages({limit = 9, searchQuery = '', page = 1}: {
     const images = await popuplateUser(Image.find(query).sort({updatedAt: -1})
     .skip(skipAmount).limit(limit));
 
-    const totalImages = await Image.find(query).countDocuments();
+    const totalImages = await Image.countDocuments(query);
 
-    const savedImages = await Image.find().countDocuments();
+    const savedImages = await Image.countDocuments();
 
     return {
       data: JSON.parse(JSON.stringify(images)),
