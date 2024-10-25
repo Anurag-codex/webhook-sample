@@ -7,6 +7,7 @@ import User from "../database/models/user.model";
 import Image from "../database/models/image.model";
 import { redirect } from "next/navigation";
 import { Select } from "@radix-ui/react-select";
+import {v2 as Cloudinary} from 'cloudinary';
 
 const popuplateUser= (query: any)=> query.populate({
   path: 'author',
@@ -89,6 +90,55 @@ export async function getImageById(imageId: string){
     }
 
     return JSON.parse(JSON.stringify(image));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// Get all images
+export async function getAllImages({limit = 9, searchQuery = '', page = 1}: {
+  limit?: number;
+  searchQuery?: string;
+  page: number;
+}){
+  try {
+    await connectToDatabase();
+    Cloudinary.config({
+      cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true,
+    })
+    let expression = 'folder=picgenie';
+    if(searchQuery){
+      expression += ` AND n${searchQuery}`;
+    }
+    const {resources} = await Cloudinary.search.expression(expression).execute();
+    const resourceIds = resources.map((resource: any)=>resource.public_id);
+    let query = {};
+    if(searchQuery){
+      query = {
+        publicId: {
+          $in: resourceIds
+        }
+      }
+    }
+
+    const skipAmount = (Number(page) - 1) * limit;
+
+    const images = await popuplateUser(Image.find(query).sort({updatedAt: -1})
+    .skip(skipAmount).limit(limit));
+
+    const totalImages = await Image.find(query).countDocuments();
+
+    const savedImages = await Image.find().countDocuments();
+
+    return {
+      data: JSON.parse(JSON.stringify(images)),
+      totalPages: Math.ceil(totalImages / limit),
+      savedImages,
+    }
+
   } catch (error) {
     handleError(error);
   }

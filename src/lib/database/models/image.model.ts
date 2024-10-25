@@ -67,6 +67,6 @@ const ImageSchema = new Schema({
   },
 }, {timestamps: true});
 
-const Image = models?.ImageSchema || model("Image", ImageSchema);
+const Image = models?.Image || model("Image", ImageSchema);
 
 export default Image;
