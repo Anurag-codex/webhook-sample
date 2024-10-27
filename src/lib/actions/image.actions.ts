@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { Select } from "@radix-ui/react-select";
 import {v2 as Cloudinary} from 'cloudinary';
 
-const popuplateUser= (query: any)=> query.populate({
+const populateUser= (query: any)=> query.populate({
   path: 'author',
   model: User,
   select: '_id, firstName lastName clerkId'
@@ -83,7 +83,7 @@ export async function getImageById(imageId: string){
   try {
     await connectToDatabase();
 
-    const image = await popuplateUser(Image.findById(imageId));
+    const image = await populateUser(Image.findById(imageId));
 
     if(!image){
       throw new Error("Image not found");
@@ -126,7 +126,7 @@ export async function getAllImages({limit = 9, searchQuery = '', page = 1}: {
 
     const skipAmount = (Number(page) - 1) * limit;
 
-    const images = await popuplateUser(Image.find(query).sort({updatedAt: -1})
+    const images = await populateUser(Image.find(query).sort({updatedAt: -1})
     .skip(skipAmount).limit(limit));
 
     const totalImages = await Image.countDocuments(query);
@@ -139,6 +139,37 @@ export async function getAllImages({limit = 9, searchQuery = '', page = 1}: {
       savedImages,
     }
 
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// GET IMAGES BY USER
+export async function getUserImages({
+  limit = 9,
+  page = 1,
+  userId,
+}: {
+  limit?: number;
+  page: number;
+  userId: string;
+}) {
+  try {
+    await connectToDatabase();
+
+    const skipAmount = (Number(page) - 1) * limit;
+
+    const images = await populateUser(Image.find({ author: userId }))
+      .sort({ updatedAt: -1 })
+      .skip(skipAmount)
+      .limit(limit);
+
+    const totalImages = await Image.find({ author: userId }).countDocuments();
+
+    return {
+      data: JSON.parse(JSON.stringify(images)),
+      totalPages: Math.ceil(totalImages / limit),
+    };
   } catch (error) {
     handleError(error);
   }
