@@ -13,15 +13,7 @@ import {
 } from "@/components/ui/select"
 
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { aspectRatioOptions, creditFee, defaultValues, transformationTypes } from "@/constants"
 import { CustomField } from "./CustomField"
@@ -43,14 +35,29 @@ export const formSchema = z.object({
   publicId: z.string(),
 })
 
-const TransformationForm = ({ action, data = null, userId, type, creditBalance, config = null }: TransformationFormProps) => {
+interface ImageState {
+  title?: string;
+  aspectRatio?: string;
+  width?: number;
+  height?: number;
+  publicId?: string;
+  secureURL?: string;
+}
+
+interface TransformationState {
+  [key: string]: {
+    [key: string]: string;
+  };
+}
+
+const TransformationForm = ({ action, data = null, userId, type, config = null }: TransformationFormProps) => {
   const transformationType = transformationTypes[type];
-  const [image, setImage] = useState(data)
+  const [image, setImage] = useState<ImageState | null>(data)
   const [newTransformation, setNewTransformation] = useState<Transformations | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [transformationConfig, setTransformationConfig] = useState(config)
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const router = useRouter()
 
   const initialValues = data && action === 'Update' ? {
@@ -137,7 +144,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
   const onSelectFieldHandler = (value: string, onChangeField: (value: string) => void) => {
     const imageSize = aspectRatioOptions[value as AspectRatioKey]
 
-    setImage((prevState: any) => ({
+    setImage((prevState: ImageState | null) => ({
       ...prevState,
       aspectRatio: imageSize.aspectRatio,
       width: imageSize.width,
@@ -151,7 +158,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
   const onInputChangeHandler = (fieldName: string, value: string, type: string, onChangeField: (value: string) => void) => {
     debounce(() => {
-      setNewTransformation((prevState: any) => ({
+      setNewTransformation((prevState: TransformationState | null) => ({
         ...prevState,
         [type]: {
           ...prevState?.[type],
@@ -167,7 +174,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
     setIsTransforming(true)
 
     setTransformationConfig(
-      deepMergeObjects(newTransformation, transformationConfig)
+      deepMergeObjects(newTransformation as object, transformationConfig)
     )
 
     setNewTransformation(null)
@@ -276,7 +283,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
               <MediaUploader 
                 onValueChange={field.onChange}
                 setImage={setImage}
-                publicId={field.value}
+                publicId={field.value || ''}
                 image={image}
                 type={type}
               />

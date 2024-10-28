@@ -5,12 +5,28 @@ import { CldImage, CldUploadWidget } from 'next-cloudinary';
 import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
 import Image from "next/image";
 
+interface ImageState {
+  publicId: string;
+  secureURL: string;
+  width: number;
+  height: number;
+}
+
 type MediaUploaderProps = {
   onValueChange: (value: string) => void;
-  setImage: React.Dispatch<any>;
-  image: any;
+  setImage: React.Dispatch<React.SetStateAction<ImageState>>;
+  image: ImageState;
   publicId: string;
   type: string;
+}
+
+interface CloudinaryResult {
+  info: {
+    public_id: string;
+    secure_url: string;
+    width: number;
+    height: number;
+  }
 }
 
 const MediaUploader = ({
@@ -22,15 +38,15 @@ const MediaUploader = ({
 }: MediaUploaderProps) => {
   const { toast } = useToast()
 
-  const onUploadSuccessHandler = (result: any) => {
-    setImage((prevState: any)=> ({
+  const onUploadSuccessHandler = (result: CloudinaryResult) => {
+    setImage((prevState: ImageState) => ({
       ...prevState,
-      publicId: result?.info?.public_id,
-      secureURL: result?.info?.secure_url,
-      width: result?.info?.width,
-      height: result?.info?.height
+      publicId: result.info.public_id,
+      secureURL: result.info.secure_url,
+      width: result.info.width,
+      height: result.info.height
     }))
-    onValueChange(result?.info?.public_id)
+    onValueChange(result.info.public_id)
     toast({
       title: 'Image uploaded successfully',
       description: '1 credit was deducted from your account',

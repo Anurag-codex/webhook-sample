@@ -6,10 +6,18 @@ import { handleError } from "../utils"
 import User from "../database/models/user.model";
 import Image from "../database/models/image.model";
 import { redirect } from "next/navigation";
-import { Select } from "@radix-ui/react-select";
 import {v2 as Cloudinary} from 'cloudinary';
 
-const populateUser= (query: any)=> query.populate({
+// Define type for query
+type QueryType = {
+  populate: (options: {
+    path: string;
+    model: typeof User | typeof Image;  // specify the actual models that can be used
+    select: string;
+  }) => QueryType;
+}
+
+const populateUser = (query: QueryType) => query.populate({
   path: 'author',
   model: User,
   select: '_id, firstName lastName clerkId'
@@ -114,7 +122,12 @@ export async function getAllImages({limit = 9, searchQuery = '', page = 1}: {
       expression += ` AND n${searchQuery}`;
     }
     const {resources} = await Cloudinary.search.expression(expression).execute();
-    const resourceIds = resources.map((resource: any)=>resource.public_id);
+    
+    interface CloudinaryResource {
+      public_id: string;
+    }
+    
+    const resourceIds = resources.map((resource: CloudinaryResource) => resource.public_id);
     let query = {};
     if(searchQuery){
       query = {
