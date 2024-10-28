@@ -5,8 +5,8 @@ export default clerkMiddleware()
 
 export const config = {
   matcher: [
-    // Apply Clerk middleware to the following routes (but exclude `/api/webhooks/clerk`)
-    '/((?!api/webhooks/clerk).*)', // All routes except `/api/webhooks/clerk`
-    '/(api|trpc)(.*)', // Ensure all API routes are included except `/api/webhooks/clerk`
+    // Exclude `/`, `/api/webhooks/clerk`, and `/api/webhooks/stripe` from middleware protection
+    '/((?!api/webhooks/clerk|api/webhooks/stripe|/).*)',
+    '/(api|trpc)(.*)', // Keep this to include all other API routes
   ],
 }
