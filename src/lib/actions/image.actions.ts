@@ -12,9 +12,12 @@ import {v2 as Cloudinary} from 'cloudinary';
 type QueryType = {
   populate: (options: {
     path: string;
-    model: typeof User | typeof Image;  // specify the actual models that can be used
+    model: typeof User | typeof Image;
     select: string;
   }) => QueryType;
+  sort: (criteria: Record<string, 1 | -1>) => QueryType;
+  skip: (amount: number) => QueryType;
+  limit: (value: number) => QueryType;
 }
 
 const populateUser = (query: QueryType) => query.populate({
