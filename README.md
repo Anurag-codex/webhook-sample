@@ -80,6 +80,8 @@ The main dependencies used in Pic Genie are as follows:
 - **stripe** and **@stripe/stripe-js**: Payment processing
 - **tailwindcss** and **tailwindcss-animate**: Styling and animations
 
+Thanks to [Adrian Hajdin](https://www.youtube.com/@javascriptmastery)
+
 ## Environment Configuration
 
 To configure Pic Genie, create a `.env.local` file at the root of your project and add the following environment variables:
