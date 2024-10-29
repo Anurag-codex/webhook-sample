@@ -2,7 +2,7 @@
 
 Pic Genie is an AI-powered SaaS application developed with **Next.js** and **Clerk**, offering advanced image editing capabilities driven by AI. This app allows users to restore images, fill generative areas, remove or recolor objects, and remove backgrounds—all with AI tools that simplify complex edits for users.
 
-![PicGenie Ai Powered SaaS application](/.public/images/screenshot.png 'PicGenie Ai Powered SaaS application')
+![PicGenie Ai Powered SaaS application](/public/screenshot.png 'PicGenie Ai Powered SaaS application')
 
 
 ## Features
